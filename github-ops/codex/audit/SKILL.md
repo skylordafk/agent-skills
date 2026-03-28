@@ -1,6 +1,6 @@
 ---
 name: audit
-description: Full-cycle GitHub issue audit — triage all open audit issues, resolve actionable ones, and produce a triage report. Combines reconnaissance, classification, resolution, and reporting. Do not invoke implicitly.
+description: "Full-cycle GitHub issue audit — triage all open audit issues, resolve actionable ones, and produce a triage report. Combines reconnaissance, classification, resolution, and reporting. Do not invoke implicitly. Do NOT use for reviewing existing PRs or fixing a single known issue."
 ---
 
 # Audit — Full-Cycle Issue Triage & Resolution
@@ -19,13 +19,15 @@ Use `$REPO` for all `gh` commands below.
 
 ## Before You Start
 
-1. **Pull the latest code:**
+1. **Verify labels exist.** Read `../../references/label-taxonomy.md` and run the bootstrap script to create any missing labels.
+
+2. **Pull the latest code:**
    ```bash
    git checkout main && git pull origin main
    ```
    Many audit issues may already be fixed. Do not work against stale code.
 
-2. **Understand the stack:** Read project docs (AGENTS.md, README, etc.) to understand the tech stack, deployment targets, and conventions.
+3. **Understand the stack:** Read project docs (AGENTS.md, README, etc.) to understand the tech stack, deployment targets, and conventions.
 
 ---
 
@@ -82,49 +84,9 @@ From ACTIONABLE issues, select 3-5:
 fix/audit-<issue-number>-<short-description>
 ```
 
-### Commit Standards
+### Commit and PR Standards
 
-```
-fix(<scope>): concise description
-
-Resolves #<issue-number>
-
-- What: specific code change
-- Why: the defect or risk resolved
-- How verified: test, build, or inspection
-```
-
-Rules: one logical change per commit, always reference issue number, no generic messages.
-
-### Pull Request
-
-```bash
-gh pr create --repo "$REPO" \
-  --title "fix: <concise summary> (#<issue-number>)" \
-  --body "## Summary
-Brief description.
-
-## Issues Resolved
-- Closes #<number> — description
-
-## Issues Reviewed but Not Addressed
-- #<number> — DEFER/REJECT — rationale
-
-## Changes
-- **File:** \`path/to/file\` — What changed
-
-## Verification
-- [x] Latest code pulled
-- [x] Tests pass
-- [x] Build succeeds
-- [x] No unrelated changes
-
-## Risk
-What could this break?
-
-## Notes for Future Agents
-Tradeoffs, alternatives rejected, limitations."
-```
+Read `../../references/commit-and-pr-format.md` for commit message format and PR body template. **Never push directly to main.**
 
 ---
 
@@ -161,13 +123,4 @@ Post as a PR comment:
 
 ## Operating Principles
 
-1. Do not attempt to resolve every issue. Fewer things done well.
-2. If not confident, defer. A wrong fix is worse than an open issue.
-3. Verify against current code. If the issue describes something that doesn't exist, close it.
-4. Document for the next agent. Assume they've never seen this codebase.
-5. No new dependencies without strong justification.
-6. No drive-by refactors. Open a new issue instead.
-7. Small PRs. One concern per PR.
-8. Don't break the build.
-9. When uncertain, defer.
-10. Leave the codebase cleaner than you found it — deliberately and documented.
+Read `../../references/operating-principles.md` and follow all principles listed there.

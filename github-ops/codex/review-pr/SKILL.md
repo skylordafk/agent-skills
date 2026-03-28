@@ -1,6 +1,6 @@
 ---
 name: review-pr
-description: Review an open PR, verify the fix, merge if approved, and handle all post-merge hygiene (labels, comments, branch cleanup). Do not invoke implicitly.
+description: "Review an open PR, verify the fix, merge if approved, and handle all post-merge hygiene (labels, comments, branch cleanup). Do not invoke implicitly. Do NOT use for triaging issues, writing fixes, or auditing."
 ---
 
 # Review + Merge — PR Review Pipeline
@@ -41,7 +41,7 @@ For each changed file, evaluate:
 **Correctness** — Does the change fix the stated problem? Edge cases handled?
 **Scope** — All changes related to stated issues? Nothing extra snuck in?
 **Side effects** — Could this break existing functionality? Trace call sites of modified functions.
-**Ideal state** — Does this move toward shipability, reliability, navigability, or security?
+**Ideal state** — Does this move toward one of the four dimensions? Read `../../references/four-dimensions.md` for the framework.
 
 Classify each finding:
 - **BLOCKING** — must fix before merge (real bugs, regressions, security issues)
@@ -51,7 +51,19 @@ Classify each finding:
 ## Step 4: Build Verification
 
 ```bash
-npm run build
+if [ -f "package.json" ]; then
+  npm run build
+elif [ -f "Cargo.toml" ]; then
+  cargo build
+elif [ -f "Makefile" ]; then
+  make
+elif [ -f "go.mod" ]; then
+  go build ./...
+elif [ -f "pyproject.toml" ]; then
+  pip install -e . 2>/dev/null || python -m build
+else
+  echo "No recognized build system. Skipping build verification."
+fi
 ```
 
 If the build fails, this is BLOCKING regardless of code quality.

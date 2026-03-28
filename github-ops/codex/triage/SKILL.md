@@ -1,6 +1,6 @@
 ---
 name: triage
-description: Classify GitHub issues tagged needs-triage into ready-to-fix, deferred, or rejected. Quality gate between audit sweep and fix pipeline.
+description: "Classify GitHub issues tagged needs-triage into ready-to-fix, deferred, or rejected. Quality gate between audit sweep and fix pipeline. Do NOT use for fixing code, reviewing PRs, or creating new issues."
 ---
 
 # Issue Triage — Classification & Routing
@@ -17,6 +17,10 @@ REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 
 If the project spans multiple repos, identify them from the project structure and triage both unless a specific repo is requested.
 
+## Before You Start
+
+Verify required labels exist. Read `../../references/label-taxonomy.md` and run the bootstrap script to create any missing labels.
+
 ## Process
 
 1. **Fetch issues:**
@@ -26,7 +30,7 @@ If the project spans multiple repos, identify them from the project structure an
 
 2. **Evaluate each issue:**
    - Is this real? (verify by reading the referenced code — don't trust the audit agent blindly)
-   - Does it matter? (which dimension: shipability, reliability, navigability, security)
+   - Does it matter? Read `../../references/four-dimensions.md` for the framework.
    - Is it actionable? (specific fix, completable in ~1 hour)
    - Is it a duplicate or symptom of something larger?
    - **Calibration:** assess project stage — reject theoretical risks, style nits in admin scripts, and anything requiring env compromise to exploit
@@ -48,6 +52,10 @@ If the project spans multiple repos, identify them from the project structure an
    - Exact title match with closed issue → close as duplicate
 
 5. **Output summary** with disposition counts and pattern notes.
+
+## Severity
+
+Read `../../references/severity-definitions.md` for severity criteria.
 
 ## Principles
 
