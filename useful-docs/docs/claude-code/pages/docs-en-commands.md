@@ -1,0 +1,121 @@
+# Built-in commands - Claude Code Docs
+
+> Source: https://code.claude.com/docs/en/commands
+
+[Skip to main content](https://code.claude.com/docs/en/commands#content-area)
+
+[Claude Code Docs home page![light logo](https://mintcdn.com/claude-code/c5r9_6tjPMzFdDDT/logo/light.svg?fit=max&auto=format&n=c5r9_6tjPMzFdDDT&q=85&s=78fd01ff4f4340295a4f66e2ea54903c)![dark logo](https://mintcdn.com/claude-code/c5r9_6tjPMzFdDDT/logo/dark.svg?fit=max&auto=format&n=c5r9_6tjPMzFdDDT&q=85&s=1298a0c3b3a1da603b190d0de0e31712)](https://code.claude.com/docs/en/overview)
+
+![US](https://d3gk2c5xim1je2.cloudfront.net/flags/US.svg)
+
+English
+
+Search...
+
+Ctrl KAsk AI
+
+Search...
+
+Navigation
+
+Reference
+
+Built-in commands
+
+[Getting started](https://code.claude.com/docs/en/overview) [Build with Claude Code](https://code.claude.com/docs/en/sub-agents) [Deployment](https://code.claude.com/docs/en/third-party-integrations) [Administration](https://code.claude.com/docs/en/setup) [Configuration](https://code.claude.com/docs/en/settings) [Reference](https://code.claude.com/docs/en/cli-reference) [Resources](https://code.claude.com/docs/en/legal-and-compliance)
+
+On this page
+
+- [MCP prompts](https://code.claude.com/docs/en/commands#mcp-prompts)
+- [See also](https://code.claude.com/docs/en/commands#see-also)
+
+Type `/` in Claude Code to see all available commands, or type `/` followed by any letters to filter. Not all commands are visible to every user. Some depend on your platform, plan, or environment. For example, `/desktop` only appears on macOS and Windows, `/upgrade` and `/privacy-settings` are only available on Pro and Max plans, and `/terminal-setup` is hidden when your terminal natively supports its keybindings.Claude Code also includes [bundled skills](https://code.claude.com/docs/en/skills#bundled-skills) like `/simplify`, `/batch`, `/debug`, and `/loop` that appear alongside built-in commands when you type `/`. To create your own commands, see [skills](https://code.claude.com/docs/en/skills).In the table below, `<arg>` indicates a required argument and `[arg]` indicates an optional one.
+
+| Command | Purpose |
+| --- | --- |
+| `/add-dir <path>` | Add a new working directory to the current session |
+| `/agents` | Manage [agent](https://code.claude.com/docs/en/sub-agents) configurations |
+| `/btw <question>` | Ask a quick [side question](https://code.claude.com/docs/en/interactive-mode#side-questions-with-btw) without adding to the conversation |
+| `/chrome` | Configure [Claude in Chrome](https://code.claude.com/docs/en/chrome) settings |
+| `/clear` | Clear conversation history and free up context. Aliases: `/reset`, `/new` |
+| `/color [color|default]` | Set the prompt bar color for the current session. Available colors: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan`. Use `default` to reset |
+| `/compact [instructions]` | Compact conversation with optional focus instructions |
+| `/config` | Open the [Settings](https://code.claude.com/docs/en/settings) interface to adjust theme, model, [output style](https://code.claude.com/docs/en/output-styles), and other preferences. Alias: `/settings` |
+| `/context` | Visualize current context usage as a colored grid. Shows optimization suggestions for context-heavy tools, memory bloat, and capacity warnings |
+| `/copy [N]` | Copy the last assistant response to clipboard. Pass a number `N` to copy the Nth-latest response: `/copy 2` copies the second-to-last. When code blocks are present, shows an interactive picker to select individual blocks or the full response. Press `w` in the picker to write the selection to a file instead of the clipboard, which is useful over SSH |
+| `/cost` | Show token usage statistics. See [cost tracking guide](https://code.claude.com/docs/en/costs#using-the-cost-command) for subscription-specific details |
+| `/desktop` | Continue the current session in the Claude Code Desktop app. macOS and Windows only. Alias: `/app` |
+| `/diff` | Open an interactive diff viewer showing uncommitted changes and per-turn diffs. Use left/right arrows to switch between the current git diff and individual Claude turns, and up/down to browse files |
+| `/doctor` | Diagnose and verify your Claude Code installation and settings |
+| `/effort [low|medium|high|max|auto]` | Set the model [effort level](https://code.claude.com/docs/en/model-config#adjust-effort-level). `low`, `medium`, and `high` persist across sessions. `max` applies to the current session only and requires Opus 4.6. `auto` resets to the model default. Without an argument, shows the current level. Takes effect immediately without waiting for the current response to finish |
+| `/exit` | Exit the CLI. Alias: `/quit` |
+| `/export [filename]` | Export the current conversation as plain text. With a filename, writes directly to that file. Without, opens a dialog to copy to clipboard or save to a file |
+| `/extra-usage` | Configure extra usage to keep working when rate limits are hit |
+| `/fast [on|off]` | Toggle [fast mode](https://code.claude.com/docs/en/fast-mode) on or off |
+| `/feedback [report]` | Submit feedback about Claude Code. Alias: `/bug` |
+| `/branch [name]` | Create a branch of the current conversation at this point. Alias: `/fork` |
+| `/help` | Show help and available commands |
+| `/hooks` | View [hook](https://code.claude.com/docs/en/hooks) configurations for tool events |
+| `/ide` | Manage IDE integrations and show status |
+| `/init` | Initialize project with a `CLAUDE.md` guide. Set `CLAUDE_CODE_NEW_INIT=true` for an interactive flow that also walks through skills, hooks, and personal memory files |
+| `/insights` | Generate a report analyzing your Claude Code sessions, including project areas, interaction patterns, and friction points |
+| `/install-github-app` | Set up the [Claude GitHub Actions](https://code.claude.com/docs/en/github-actions) app for a repository. Walks you through selecting a repo and configuring the integration |
+| `/install-slack-app` | Install the Claude Slack app. Opens a browser to complete the OAuth flow |
+| `/keybindings` | Open or create your keybindings configuration file |
+| `/login` | Sign in to your Anthropic account |
+| `/logout` | Sign out from your Anthropic account |
+| `/mcp` | Manage MCP server connections and OAuth authentication |
+| `/memory` | Edit `CLAUDE.md` memory files, enable or disable [auto-memory](https://code.claude.com/docs/en/memory#auto-memory), and view auto-memory entries |
+| `/mobile` | Show QR code to download the Claude mobile app. Aliases: `/ios`, `/android` |
+| `/model [model]` | Select or change the AI model. For models that support it, use left/right arrows to [adjust effort level](https://code.claude.com/docs/en/model-config#adjust-effort-level). The change takes effect immediately without waiting for the current response to finish |
+| `/passes` | Share a free week of Claude Code with friends. Only visible if your account is eligible |
+| `/permissions` | View or update [permissions](https://code.claude.com/docs/en/permissions#manage-permissions). Alias: `/allowed-tools` |
+| `/plan [description]` | Enter plan mode directly from the prompt. Pass an optional description to enter plan mode and immediately start with that task, for example `/plan fix the auth bug` |
+| `/plugin` | Manage Claude Code [plugins](https://code.claude.com/docs/en/plugins) |
+| `/pr-comments [PR]` | Fetch and display comments from a GitHub pull request. Automatically detects the PR for the current branch, or pass a PR URL or number. Requires the `gh` CLI |
+| `/privacy-settings` | View and update your privacy settings. Only available for Pro and Max plan subscribers |
+| `/release-notes` | View the full changelog, with the most recent version closest to your prompt |
+| `/reload-plugins` | Reload all active [plugins](https://code.claude.com/docs/en/plugins) to apply pending changes without restarting. Reports counts for each reloaded component and flags any load errors |
+| `/remote-control` | Make this session available for [remote control](https://code.claude.com/docs/en/remote-control) from claude.ai. Alias: `/rc` |
+| `/remote-env` | Configure the default remote environment for [web sessions started with `--remote`](https://code.claude.com/docs/en/claude-code-on-the-web#environment-configuration) |
+| `/rename [name]` | Rename the current session and show the name on the prompt bar. Without a name, auto-generates one from conversation history |
+| `/resume [session]` | Resume a conversation by ID or name, or open the session picker. Alias: `/continue` |
+| `/review` | Deprecated. Install the [`code-review` plugin](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review) instead: `claude plugin install code-review@claude-plugins-official` |
+| `/rewind` | Rewind the conversation and/or code to a previous point, or summarize from a selected message. See [checkpointing](https://code.claude.com/docs/en/checkpointing). Alias: `/checkpoint` |
+| `/sandbox` | Toggle [sandbox mode](https://code.claude.com/docs/en/sandboxing). Available on supported platforms only |
+| `/schedule [description]` | Create, update, list, or run [Cloud scheduled tasks](https://code.claude.com/docs/en/web-scheduled-tasks). Claude walks you through the setup conversationally |
+| `/security-review` | Analyze pending changes on the current branch for security vulnerabilities. Reviews the git diff and identifies risks like injection, auth issues, and data exposure |
+| `/skills` | List available [skills](https://code.claude.com/docs/en/skills) |
+| `/stats` | Visualize daily usage, session history, streaks, and model preferences |
+| `/status` | Open the Settings interface (Status tab) showing version, model, account, and connectivity. Works while Claude is responding, without waiting for the current response to finish |
+| `/statusline` | Configure Claude Code’s [status line](https://code.claude.com/docs/en/statusline). Describe what you want, or run without arguments to auto-configure from your shell prompt |
+| `/stickers` | Order Claude Code stickers |
+| `/tasks` | List and manage background tasks |
+| `/terminal-setup` | Configure terminal keybindings for Shift+Enter and other shortcuts. Only visible in terminals that need it, like VS Code, Alacritty, or Warp |
+| `/theme` | Change the color theme. Includes light and dark variants, colorblind-accessible (daltonized) themes, and ANSI themes that use your terminal’s color palette |
+| `/upgrade` | Open the upgrade page to switch to a higher plan tier |
+| `/usage` | Show plan usage limits and rate limit status |
+| `/vim` | Toggle between Vim and Normal editing modes |
+| `/voice` | Toggle push-to-talk [voice dictation](https://code.claude.com/docs/en/voice-dictation). Requires a Claude.ai account |
+
+## [​](https://code.claude.com/docs/en/commands\#mcp-prompts)  MCP prompts
+
+MCP servers can expose prompts that appear as commands. These use the format `/mcp__<server>__<prompt>` and are dynamically discovered from connected servers. See [MCP prompts](https://code.claude.com/docs/en/mcp#use-mcp-prompts-as-commands) for details.
+
+## [​](https://code.claude.com/docs/en/commands\#see-also)  See also
+
+- [Skills](https://code.claude.com/docs/en/skills): create your own commands
+- [Interactive mode](https://code.claude.com/docs/en/interactive-mode): keyboard shortcuts, Vim mode, and command history
+- [CLI reference](https://code.claude.com/docs/en/cli-reference): launch-time flags
+
+Was this page helpful?
+
+YesNo
+
+[CLI reference](https://code.claude.com/docs/en/cli-reference) [Environment variables](https://code.claude.com/docs/en/env-vars)
+
+Ctrl+I
+
+Assistant
+
+Responses are generated using AI and may contain mistakes.

@@ -1,3 +1,54 @@
+# Doc Fetcher Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Build a Python script that uses Firecrawl to map and scrape documentation sites, saving results as individual markdown files per page plus a concatenated full file per source.
+
+**Architecture:** Single script (`fetch_docs.py`) with a source config dict at the top. Uses Firecrawl SDK's `map()` to discover URLs, then `scrape()` to pull each page as markdown. Results stored in `docs/{source}/pages/` with a manifest and concatenated file.
+
+**Tech Stack:** Python 3.9+, `firecrawl` SDK (v4.21+), `python-dotenv` for env loading.
+
+---
+
+### Task 1: Install dependencies and create requirements.txt
+
+**Files:**
+- Create: `requirements.txt`
+
+- [ ] **Step 1: Create requirements.txt**
+
+```
+firecrawl>=4.21
+python-dotenv>=1.0
+```
+
+- [ ] **Step 2: Install dependencies**
+
+Run: `pip3 install -r requirements.txt`
+Expected: Both packages install successfully (firecrawl already installed, dotenv may be new).
+
+- [ ] **Step 3: Verify imports**
+
+Run: `python3 -c "from firecrawl import Firecrawl; from dotenv import load_dotenv; print('ok')"`
+Expected: `ok`
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add requirements.txt
+git commit -m "chore: add requirements for doc fetcher"
+```
+
+---
+
+### Task 2: Build fetch_docs.py — config, CLI args, and map functionality
+
+**Files:**
+- Create: `fetch_docs.py`
+
+- [ ] **Step 1: Create fetch_docs.py with config, CLI parsing, and map logic**
+
+```python
 #!/usr/bin/env python3
 """Fetch documentation from configured sources using Firecrawl."""
 
@@ -7,11 +58,9 @@ import os
 import re
 import sys
 import time
-import xml.etree.ElementTree as ET
 from pathlib import Path
 from urllib.parse import urlparse
 
-import requests
 from dotenv import load_dotenv
 from firecrawl import Firecrawl
 
@@ -24,13 +73,14 @@ SOURCES = {
     "claude-code": {
         "url": "https://code.claude.com/docs/en/overview",
         "description": "Claude Code CLI documentation",
-        # Firecrawl map can't discover SPA pages; use sitemap instead
-        "sitemap": "https://code.claude.com/docs/sitemap.xml",
-        "include": ["/docs/en/"],  # English pages only
     },
     "codex": {
         "url": "https://developers.openai.com/codex",
         "description": "OpenAI Codex documentation",
+    },
+    "openclaw": {
+        "url": "https://docs.openclaw.ai/",
+        "description": "OpenClaw AI agent platform documentation",
     },
 }
 
@@ -56,38 +106,12 @@ def slugify(url: str) -> str:
     return slug or "index"
 
 
-def urls_from_sitemap(sitemap_url: str) -> list:
-    """Fetch and parse a sitemap.xml, returning all <loc> URLs."""
-    resp = requests.get(sitemap_url, timeout=30)
-    resp.raise_for_status()
-    root = ET.fromstring(resp.content)
-    # Handle XML namespace
-    ns = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-    urls = [loc.text for loc in root.findall(".//sm:loc", ns)]
-    if not urls:
-        # Try without namespace
-        urls = [loc.text for loc in root.findall(".//{*}loc")]
-    return urls
-
-
-def filter_urls(urls: list, include: list = None, exclude: list = None) -> list:
-    """Filter URLs by include/exclude substring patterns."""
-    if include:
-        urls = [u for u in urls if any(pat in u for pat in include)]
-    if exclude:
-        urls = [u for u in urls if not any(pat in u for pat in exclude)]
-    return urls
-
-
 def map_source(client: Firecrawl, name: str, config: dict, dry_run: bool = False) -> list:
     """Map a source URL to discover all doc pages. Returns list of URL strings."""
-    use_sitemap = "sitemap" in config
-
     print(f"\n{'[DRY RUN] ' if dry_run else ''}Mapping {name}: {config['url']}")
-    if use_sitemap:
-        print(f"  Using sitemap: {config['sitemap']}")
 
     if dry_run:
+        # In dry-run mode, try to load existing manifest
         manifest_path = DOCS_DIR / name / "manifest.json"
         if manifest_path.exists():
             with open(manifest_path) as f:
@@ -98,29 +122,14 @@ def map_source(client: Firecrawl, name: str, config: dict, dry_run: bool = False
             print("  Would map (no existing manifest).")
             return []
 
-    # Discover URLs via sitemap or Firecrawl map
-    if use_sitemap:
-        urls = urls_from_sitemap(config["sitemap"])
-        print(f"  Sitemap has {len(urls)} URLs (0 credits)")
-    else:
-        result = client.map(url=config["url"])
-        urls = [link.url for link in result.links]
-        print(f"  Found {len(urls)} URLs (1 credit used)")
-
-    # Apply include/exclude filters
-    urls = filter_urls(urls, config.get("include"), config.get("exclude"))
-    print(f"  After filtering: {len(urls)} URLs")
+    result = client.map(url=config["url"])
+    urls = [link.url for link in result.links]
+    print(f"  Found {len(urls)} URLs (1 credit used)")
 
     # Save manifest
     source_dir = DOCS_DIR / name
     source_dir.mkdir(parents=True, exist_ok=True)
-    manifest = {
-        "source": name,
-        "base_url": config["url"],
-        "discovery": "sitemap" if use_sitemap else "firecrawl-map",
-        "urls": urls,
-        "mapped_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-    }
+    manifest = {"source": name, "base_url": config["url"], "urls": urls, "mapped_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     with open(source_dir / "manifest.json", "w") as f:
         json.dump(manifest, f, indent=2)
     print(f"  Manifest saved to docs/{name}/manifest.json")
@@ -207,8 +216,7 @@ def main():
     for name in targets:
         config = SOURCES[name]
         urls = map_source(client, name, config, dry_run=args.dry_run)
-        if not args.dry_run and "sitemap" not in config:
-            total_credits += 1
+        total_credits += 0 if args.dry_run else 1
 
         if not args.map_only:
             scrape_source(client, name, urls, dry_run=args.dry_run)
@@ -223,3 +231,112 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
+
+- [ ] **Step 2: Verify the script parses and --list works**
+
+Run: `python3 fetch_docs.py --list`
+Expected:
+```
+Available sources:
+  claude-code: Claude Code CLI documentation (https://code.claude.com/docs/en/overview)
+  codex: OpenAI Codex documentation (https://developers.openai.com/codex)
+  openclaw: OpenClaw AI agent platform documentation (https://docs.openclaw.ai/)
+```
+
+- [ ] **Step 3: Verify --dry-run works without spending credits**
+
+Run: `python3 fetch_docs.py --dry-run`
+Expected: Shows "[DRY RUN]" messages, no API calls, no credits spent.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add fetch_docs.py
+git commit -m "feat: add doc fetcher script with Firecrawl map+scrape"
+```
+
+---
+
+### Task 3: Test with a single source using --map-only
+
+This is a live API test. Costs 1 credit.
+
+- [ ] **Step 1: Map one source to verify the API connection works**
+
+Run: `python3 fetch_docs.py openclaw --map-only`
+Expected: Prints found URLs, creates `docs/openclaw/manifest.json`.
+
+- [ ] **Step 2: Inspect the manifest**
+
+Run: `cat docs/openclaw/manifest.json | python3 -m json.tool | head -20`
+Expected: JSON with `urls` array containing discovered doc page URLs.
+
+- [ ] **Step 3: Review URL count to estimate credit cost**
+
+Check how many URLs were discovered. If >200 for a single source, consider adding `limit` to the map call or filtering URLs before scraping.
+
+---
+
+### Task 4: Test full scrape on a small source
+
+Pick the source with fewest URLs from Task 3's manifest. Scrape it fully to validate the end-to-end flow.
+
+- [ ] **Step 1: Run full fetch on the smallest source**
+
+Run: `python3 fetch_docs.py <smallest-source>`
+Expected: Maps + scrapes all pages, creates `docs/<source>/pages/*.md` and `docs/<source>/<source>-full.md`.
+
+- [ ] **Step 2: Verify output structure**
+
+Run: `ls -la docs/<source>/pages/ | head -20` and `wc -l docs/<source>/<source>-full.md`
+Expected: Individual .md files in pages/, concatenated file with substantial content.
+
+- [ ] **Step 3: Spot-check a page file**
+
+Run: `head -30 docs/<source>/pages/<any-file>.md`
+Expected: Markdown with title header, source URL, and meaningful doc content.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add fetch_docs.py docs/
+git commit -m "feat: verified doc fetcher with live API test"
+```
+
+---
+
+### Task 5: Fetch remaining sources
+
+- [ ] **Step 1: Map remaining sources to check URL counts**
+
+Run: `python3 fetch_docs.py --map-only`
+Expected: Manifests created for all three sources. Check total URL count stays within credit budget (~497 remaining after Task 3-4).
+
+- [ ] **Step 2: Scrape all sources**
+
+Run: `python3 fetch_docs.py`
+Expected: All three sources mapped and scraped. Full output structure under `docs/`.
+
+- [ ] **Step 3: Verify all outputs**
+
+Run: `find docs/ -name "*-full.md" -exec wc -l {} \;`
+Expected: Three full files with substantial line counts.
+
+- [ ] **Step 4: Add docs/ to .gitignore (optional) or commit docs**
+
+Decide: should fetched docs be committed to git or regenerated on demand? If committing:
+
+```bash
+git add docs/ fetch_docs.py
+git commit -m "feat: fetch initial documentation for all sources"
+```
+
+If not committing docs (regenerate on demand):
+
+Create `.gitignore`:
+```
+docs/claude-code/
+docs/codex/
+docs/openclaw/
+```
