@@ -27,21 +27,17 @@ GitHub issue lifecycle skills — audit, triage, fix, and review.
 | `fix-issues` | Resolve `ready-to-fix` issues with atomic commits and PRs |
 | `review-pr` | Review PRs, merge if approved, handle post-merge hygiene |
 
-## Usage
+## Installation
 
-### Symlink into a project
+See the **[Installation Guide](docs/installation.md)** for full instructions, including a **copy-paste prompt** you can give to your coding agent to have it install the skills automatically.
 
-```bash
-# Claude Code
-ln -s /path/to/agent-skills/github-ops/claude/triage /path/to/project/.claude/skills/triage
+**Quick start — paste this into your agent:**
 
-# Codex
-ln -s /path/to/agent-skills/github-ops/codex/triage /path/to/project/.agents/skills/triage
-```
+> Install the github-ops AI agent skills into this project from https://github.com/skylordafk/agent-skills.git — clone it to /tmp, copy Claude Code skills to .claude/skills/, Codex skills to .agents/skills/, and shared references to both .claude/references/ and .agents/references/. Then clean up the clone and verify with ls -R.
 
 ### Repository auto-detection
 
-Skills use `gh repo view --json nameWithOwner` to detect the current repository at runtime. No per-project configuration needed — just symlink and go.
+Skills use `gh repo view --json nameWithOwner` to detect the current repository at runtime. No per-project configuration needed — just install and go.
 
 ## Adding new skills
 
