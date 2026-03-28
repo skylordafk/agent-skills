@@ -1,6 +1,6 @@
 ---
 name: audit
-description: Full-cycle GitHub issue audit — triage all open audit issues, resolve actionable ones, and produce a triage report. Combines reconnaissance, classification, resolution, and reporting.
+description: "Full-cycle GitHub issue audit — triage all open audit issues, resolve actionable ones, and produce a triage report. Combines reconnaissance, classification, resolution, and reporting. Do NOT use for reviewing existing PRs or fixing a single known issue."
 argument-hint: "[--triage-only] [--repo <owner/repo>]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Bash, ListDirectory, Write, Edit
@@ -24,13 +24,15 @@ $ARGUMENTS
 
 ## Before You Start
 
-1. **Pull the latest code.** Before reading any issues or writing any code:
+1. **Verify labels exist.** Read `../../references/label-taxonomy.md` and run the bootstrap script to create any missing labels.
+
+2. **Pull the latest code.** Before reading any issues or writing any code:
    ```bash
    git checkout main && git pull origin main
    ```
    Many audit issues may already be fixed. Do not work against stale code.
 
-2. **Understand the stack:** Read project docs (CLAUDE.md, README, etc.) to understand the tech stack, deployment targets, and conventions.
+3. **Understand the stack:** Read project docs (CLAUDE.md, README, etc.) to understand the tech stack, deployment targets, and conventions.
 
 ---
 
@@ -115,62 +117,9 @@ If grouping multiple issues:
 fix/audit-<primary-issue>-<short-description>
 ```
 
-### Commit Standards
+### Commit and PR Standards
 
-Each commit must be atomic and well-described:
-
-```
-fix(<scope>): concise description of what changed
-
-Resolves #<issue-number>
-
-- What: Describe the specific code change.
-- Why: Explain the defect or risk this resolves.
-- How verified: State how you confirmed the fix is correct.
-```
-
-Rules:
-- One logical change per commit. Do not bundle unrelated fixes.
-- Never use generic messages like "fix issues" or "address audit findings."
-- Always include `Resolves #N` — this triggers GitHub's auto-close.
-
-### Pull Request Standards
-
-Every fix goes through a PR. **Never push directly to main.**
-
-```bash
-gh pr create --repo "$REPO" \
-  --title "fix: <concise summary> (#<issue-number>)" \
-  --body "## Summary
-Brief description of what this PR addresses and why.
-
-## Issues Resolved
-- Closes #<number> — one-line description
-
-## Issues Reviewed but Not Addressed
-- #<number> — **DEFER** — one-line rationale
-- #<number> — **REJECT** — one-line rationale
-
-## Changes
-For each file changed:
-- **File:** \`path/to/file.ts\`
-- **What changed:** Description
-
-## What Was NOT Changed (and why)
-Note related code you intentionally left alone and why.
-
-## Verification
-- [x] \`git pull origin main\` confirmed before starting
-- [x] All existing tests pass
-- [x] Build succeeds
-- [x] No unrelated changes included
-
-## Risk
-What could this break? Edge cases, deployment considerations.
-
-## Notes for Future Agents
-Tradeoffs considered, alternatives rejected, known limitations."
-```
+Read `../../references/commit-and-pr-format.md` for commit message format and PR body template. **Never push directly to main.** Every fix goes through a PR.
 
 ### After Merge
 
@@ -217,13 +166,4 @@ Describe recurring patterns and recommend holistic fixes.
 
 ## Operating Principles
 
-1. **Do not attempt to resolve every issue.** Fewer things done well beats maximizing closed issues.
-2. **If you are not confident in a fix, defer it.** A wrong fix is worse than an open issue.
-3. **Verify against current code.** Pull latest, read the files. If the issue describes something that doesn't exist, close it.
-4. **Document for the next agent, not yourself.** Assume the next person has never seen this codebase.
-5. **No new dependencies** without strong justification.
-6. **No drive-by refactors.** Open a new issue instead.
-7. **Small PRs.** One concern per PR. If touching more than 5-7 files, you're probably doing too much.
-8. **Don't break the build.** Run existing tests and linting before submitting.
-9. **When uncertain, defer.** A thoughtful comment is more valuable than a bad fix.
-10. **Leave the codebase cleaner than you found it** — but only in ways that are deliberate and documented.
+Read `../../references/operating-principles.md` and follow all principles listed there.

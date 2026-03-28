@@ -1,6 +1,6 @@
 ---
 name: triage
-description: Classify GitHub issues tagged needs-triage into ready-to-fix, deferred, or rejected. Quality gate between audit sweep and fix pipeline.
+description: "Classify GitHub issues tagged needs-triage into ready-to-fix, deferred, or rejected. Quality gate between audit sweep and fix pipeline. Do NOT use for fixing code, reviewing PRs, or creating new issues."
 argument-hint: "[--auto-only] [--repo <owner/repo>]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Bash, ListDirectory
@@ -17,17 +17,21 @@ Determine the target repository:
 ```bash
 # If --repo was specified in arguments, use that
 # Otherwise, auto-detect from the current project:
-gh repo view --json nameWithOwner -q .nameWithOwner
+REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 ```
 
 If the project spans multiple repos (e.g., a website + API), identify them from the project structure and triage both unless `--repo` narrows the scope.
 
 $ARGUMENTS
 
+## Before You Start
+
+Verify required labels exist. Read `../../references/label-taxonomy.md` and run the bootstrap script to create any missing labels.
+
 ## Step 1: Fetch Issues
 
 ```bash
-gh issue list --repo <REPO> --label needs-triage --state open --json number,title,body,labels
+gh issue list --repo "$REPO" --label needs-triage --state open --json number,title,body,labels
 ```
 
 ## Step 2: Evaluate Each Issue
@@ -40,7 +44,7 @@ For each issue, assess:
 - If unsure, **read the referenced file/lines** to verify independently.
 
 ### Does it matter?
-- Which dimension does this affect? (shipability 🚀, reliability 🔒, navigability 🧭, security 🛡️)
+- Which dimension does this affect? Read `../../references/four-dimensions.md` for the framework.
 - How significant is the impact? Would fixing this meaningfully close a gap?
 
 ### Is it actionable?
@@ -119,12 +123,9 @@ Apply automatically without manual review:
 
 Use `--auto-only` to apply only these rules.
 
-## Severity Definitions
+## Severity
 
-- **critical** — data loss, security breach, total breakage possible now
-- **high** — breaks under real-world usage or blocks shipping
-- **medium** — degrades quality or blocks future work
-- **low** — cleanup, nice-to-have
+Read `../../references/severity-definitions.md` for severity criteria.
 
 ## Principles
 

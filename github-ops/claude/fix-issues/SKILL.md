@@ -1,6 +1,6 @@
 ---
 name: fix-issues
-description: Resolve triaged GitHub audit issues tagged ready-to-fix. Implements fixes, creates atomic commits, and submits a PR following project standards.
+description: "Resolve triaged GitHub audit issues tagged ready-to-fix. Implements fixes, creates atomic commits, and submits a PR following project standards. Do NOT use for triaging, auditing, or reviewing PRs."
 argument-hint: "[issue-numbers or focus area]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Bash, ListDirectory, Write, Edit
@@ -31,7 +31,7 @@ If no `ready-to-fix` issues exist, check `needs-triage`:
 gh issue list --repo "$REPO" --label needs-triage --state open --json number,title,body,labels
 ```
 
-## Step 2: Select 3–5 Issues
+## Step 2: Select 3-5 Issues
 
 - **Group related issues** affecting the same file/module into one PR
 - **Prioritize:** security > reliability > shipability > navigability
@@ -47,52 +47,27 @@ git checkout -b fix/issue-<NUM>-<short-desc>
 git checkout -b fix/issues-<NUM>-<NUM>-<short-desc>
 ```
 
-**Commits — atomic, one logical change each:**
-```
-fix(scope): description (#<issue-number>)
-
-- What: specific code change
-- Why: the defect or risk resolved
-- How verified: test, build, or inspection
-```
-
-Rules:
-- One logical change per commit
-- Reference the issue number in every commit
-- Never use generic messages ("fix issues", "cleanup")
+**Commits and PR:** Read `../../references/commit-and-pr-format.md` for commit message format and PR body template. For smaller fix PRs, the "Issues Reviewed but Not Addressed", "Risk", and "Notes" sections are optional.
 
 **Build check:**
 ```bash
-npm run build
+if [ -f "package.json" ]; then
+  npm run build
+elif [ -f "Cargo.toml" ]; then
+  cargo build
+elif [ -f "Makefile" ]; then
+  make
+elif [ -f "go.mod" ]; then
+  go build ./...
+elif [ -f "pyproject.toml" ]; then
+  pip install -e . 2>/dev/null || python -m build
+else
+  echo "No recognized build system. Skipping build verification."
+fi
 ```
 Fix any errors before proceeding.
 
-## Step 4: Submit PR
-
-```bash
-gh pr create --repo "$REPO" \
-  --title "[Audit Fix] <concise summary>" \
-  --body "## Summary
-What this PR addresses. Dimension improved: <shipability/reliability/navigability/security>.
-
-## Issues Resolved
-- Closes #<number> — one-line description
-
-## Changes
-For each file:
-- **File:** \`path/to/file\`
-- **What changed:** Description
-
-## Verification
-- [x] \`npm run build\` succeeds
-- [x] No unrelated changes
-- [x] All resolved issues have \`Closes #XX\`
-
-## Notes for Reviewer
-Tradeoffs, alternatives rejected, limitations."
-```
-
-## Step 5: Update Labels
+## Step 4: Update Labels
 
 ```bash
 # For each issue being fixed:
@@ -101,22 +76,10 @@ gh issue edit <NUMBER> --repo "$REPO" --add-label in-progress --remove-label rea
 
 ## Standards
 
-### Severity Definitions
-- **critical** — data loss, security breach, total breakage possible now
-- **high** — breaks under real usage or blocks shipping
-- **medium** — degrades quality or blocks future work
-- **low** — cleanup, nice-to-have
+Read `../../references/severity-definitions.md` for severity criteria.
 
-### The Four Dimensions (Ideal State)
-Every fix should move the codebase toward ideal state:
-1. **Shipability 🚀** — can you add a feature in one session?
-2. **Reliability 🔒** — is anything silently broken?
-3. **Navigability 🧭** — can agents navigate the codebase?
-4. **Security 🛡️** — does protection match exposure?
+Read `../../references/four-dimensions.md` for the ideal state framework. Every fix should move the codebase toward ideal state.
 
 ## Principles
 
-1. **Fewer, better fixes.** 3 solid fixes beat 10 sloppy ones.
-2. **If not confident, skip it.** A wrong fix is worse than an open issue.
-3. **Document for the next agent.** They've never seen this codebase.
-4. **Every fix moves toward ideal state.** Say which dimension.
+Read `../../references/operating-principles.md` and follow all principles listed there.
