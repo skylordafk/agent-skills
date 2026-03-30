@@ -49,6 +49,11 @@ For each, note: issue number/title, referenced files/lines, category, and cross-
 
 **CONSOLIDATE** — Duplicate or overlapping. Close duplicates linking to primary issue.
 
+**HAZARD** — Not broken today, but the pattern is structurally fragile or unnecessarily constrains the project's future.
+- The risk is structural, not speculative (read `../../references/risk-potential.md`)
+- A simpler or more natural design would also be more open
+- Worth addressing proactively rather than waiting for it to bite
+
 **DEFER — Needs Discussion** — Valid but requires broader conversation. Cross-module, cross-repo, or multiple reasonable approaches.
 
 **DEFER — Symptom of Larger Issue** — Real but surface-level manifestation of a deeper structural problem.
@@ -72,7 +77,45 @@ Post classification as a comment on each issue with 1-2 sentence rationale.
 From ACTIONABLE issues, select 3-5:
 - Fewer is better. Confidence matters.
 - Group related issues (same file/module → single PR).
-- Prioritize: security > correctness > reliability > architecture > maintainability.
+- Prioritize: security > correctness > hazard > reliability > architecture > maintainability.
+
+---
+
+## Phase 1.5: Risk Reconnaissance (requires `--risk-scan`)
+
+If `--risk-scan` was specified, proactively examine the codebase areas touched by audit issues for risk patterns the sweep missed.
+
+### Scope
+
+Build a list of files and modules referenced by the audit issues you just triaged. These define your search area — do not scan the entire repo.
+
+### What to look for
+
+Read `../../references/risk-potential.md` for the full framework. In each file/module:
+
+1. **Latent defects:** shared mutable state, implicit ordering, unchecked coercions, swallowed errors, stringly-typed interfaces, silent fallbacks.
+2. **Artificial constraints:** hardcoded assumptions in core abstractions, unnecessary coupling, abstractions that lock in one approach when the domain doesn't require it.
+
+### Calibration
+
+For each finding, apply the three calibration questions from the risk-potential reference:
+- Is the risk structural or speculative?
+- Does the constraint actually constrain?
+- Is there a simpler alternative that's also more open?
+
+Only file issues for findings that pass all three checks.
+
+### Output
+
+For each valid finding, create a new GitHub issue:
+```bash
+gh issue create --repo "$REPO" \
+  --title "risk: <concise description>" \
+  --body "<description of the pattern, which file(s), why it's risky per the framework, and what a better design looks like>" \
+  --label "audit" --label "needs-triage" --label "risk:hazard"
+```
+
+If `--risk-scan` was not specified, skip this phase entirely.
 
 ---
 
@@ -107,6 +150,8 @@ Post as a PR comment:
 |----------------------------------|-------|--------|
 | ACTIONABLE (resolved this PR)    |       |        |
 | ACTIONABLE (not yet started)     |       |        |
+| HAZARD (resolved this PR)        |       |        |
+| HAZARD (not yet started)         |       |        |
 | CONSOLIDATE (duplicates closed)  |       |        |
 | DEFER — Needs Discussion         |       |        |
 | DEFER — Symptom of Larger Issue  |       |        |
