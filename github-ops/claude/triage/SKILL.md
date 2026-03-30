@@ -47,6 +47,12 @@ For each issue, assess:
 - Which dimension does this affect? Read `../../references/four-dimensions.md` for the framework.
 - How significant is the impact? Would fixing this meaningfully close a gap?
 
+### What's the risk trajectory?
+- Read `../../references/risk-potential.md` for the framework.
+- Is this a latent defect — a pattern with a known track record of producing bugs?
+- Is this an artificial constraint — a design choice that unnecessarily narrows future options?
+- If neither, move on. If either, this is a valid reason the issue deserves attention regardless of whether it's "broken" today.
+
 ### Is it actionable?
 - Is there a specific, bounded fix? (Not "consider refactoring the architecture")
 - Can it be completed in under ~1 hour of focused work?
@@ -72,6 +78,7 @@ Real issue, clearly scoped, actionable, impacts a dimension.
 Actions:
 - Remove `needs-triage`, add `ready-to-fix`
 - If the issue body is missing acceptance criteria, add them in a comment
+- Issues with genuine risk potential (per the framework) qualify as `ready-to-fix` even if they would otherwise seem like style nits or over-engineering. The risk-potential calibration criteria are the gatekeeper.
 
 ### → `deferred`
 Valid concern but not actionable now.
@@ -120,6 +127,7 @@ Apply automatically without manual review:
 - **CRITICAL + type `fix`** → `ready-to-fix`
 - **HIGH + type `fix`** → `ready-to-fix`
 - **Exact title match with a closed issue** → close as duplicate
+- **`risk:hazard` label** → always manual review (never auto-triaged, regardless of severity)
 
 Use `--auto-only` to apply only these rules.
 
