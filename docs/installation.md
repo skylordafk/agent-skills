@@ -13,7 +13,7 @@ Four skills for GitHub issue lifecycle management:
 | **fix-issues** | Resolve `ready-to-fix` issues with atomic commits and PRs |
 | **review-pr** | Review pull requests, merge if approved, handle post-merge cleanup |
 
-Plus five shared reference documents that the skills depend on (label taxonomy, severity definitions, quality dimensions, commit/PR format, operating principles).
+Plus six shared reference documents that the skills depend on (label taxonomy, severity definitions, quality dimensions, risk potential, commit/PR format, operating principles).
 
 ## Prerequisites
 
@@ -92,6 +92,7 @@ The final directory structure should look like:
     ├── four-dimensions.md
     ├── label-taxonomy.md
     ├── operating-principles.md
+    ├── risk-potential.md
     └── severity-definitions.md
 
 .agents/
@@ -113,6 +114,7 @@ The final directory structure should look like:
     ├── four-dimensions.md
     ├── label-taxonomy.md
     ├── operating-principles.md
+    ├── risk-potential.md
     └── severity-definitions.md
 ```
 
@@ -198,7 +200,81 @@ This is why references must be at `.claude/references/` (or `.agents/references/
 
 ## Updating Skills
 
-To update to the latest version, delete the installed skills and references, then re-run the installation prompt:
+### Prompt: Check for updates and upgrade (Claude Code + Codex)
+
+Paste this into your coding agent to see what's changed and apply updates:
+
+````
+Check for updates to the github-ops AI agent skills from https://github.com/skylordafk/agent-skills.git and apply them.
+
+Follow these steps exactly:
+
+1. Clone the latest version:
+   ```
+   git clone --depth 1 https://github.com/skylordafk/agent-skills.git /tmp/agent-skills-update
+   ```
+
+2. Show what's changed by diffing against installed files. For each skill and reference file, compare the installed version to the latest version and summarize the differences:
+   ```
+   echo "=== Checking for changes ==="
+   for dir in audit triage fix-issues review-pr; do
+     if [ -f ".claude/skills/$dir/SKILL.md" ]; then
+       if ! diff -q ".claude/skills/$dir/SKILL.md" "/tmp/agent-skills-update/github-ops/claude/$dir/SKILL.md" > /dev/null 2>&1; then
+         echo "CHANGED: $dir skill"
+         diff --unified=3 ".claude/skills/$dir/SKILL.md" "/tmp/agent-skills-update/github-ops/claude/$dir/SKILL.md" | head -40
+         echo "..."
+       fi
+     else
+       echo "NEW: $dir skill (not currently installed)"
+     fi
+   done
+   echo "=== Checking references ==="
+   for ref in /tmp/agent-skills-update/github-ops/references/*.md; do
+     name=$(basename "$ref")
+     if [ -f ".claude/references/$name" ]; then
+       if ! diff -q ".claude/references/$name" "$ref" > /dev/null 2>&1; then
+         echo "CHANGED: $name"
+       fi
+     else
+       echo "NEW: $name (not currently installed)"
+     fi
+   done
+   ```
+
+3. Show me a summary of what changed and what's new before proceeding. Ask for confirmation.
+
+4. After confirmation, copy the updated files:
+   ```
+   cp -r /tmp/agent-skills-update/github-ops/claude/audit .claude/skills/audit
+   cp -r /tmp/agent-skills-update/github-ops/claude/triage .claude/skills/triage
+   cp -r /tmp/agent-skills-update/github-ops/claude/fix-issues .claude/skills/fix-issues
+   cp -r /tmp/agent-skills-update/github-ops/claude/review-pr .claude/skills/review-pr
+   cp /tmp/agent-skills-update/github-ops/references/*.md .claude/references/
+
+   cp -r /tmp/agent-skills-update/github-ops/codex/audit .agents/skills/audit
+   cp -r /tmp/agent-skills-update/github-ops/codex/triage .agents/skills/triage
+   cp -r /tmp/agent-skills-update/github-ops/codex/fix-issues .agents/skills/fix-issues
+   cp -r /tmp/agent-skills-update/github-ops/codex/review-pr .agents/skills/review-pr
+   cp /tmp/agent-skills-update/github-ops/references/*.md .agents/references/
+   ```
+
+5. Clean up:
+   ```
+   rm -rf /tmp/agent-skills-update
+   ```
+
+6. Verify:
+   ```
+   echo "=== Claude Code ===" && ls -R .claude/skills/ .claude/references/
+   echo "=== Codex ===" && ls -R .agents/skills/ .agents/references/
+   ```
+
+Do not modify the skill files after copying.
+````
+
+### Manual update
+
+If you prefer to update without the prompt:
 
 ```bash
 rm -rf .claude/skills/{audit,triage,fix-issues,review-pr} .claude/references/
