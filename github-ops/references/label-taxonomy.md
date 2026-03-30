@@ -11,6 +11,7 @@ These labels drive the audit-triage-fix-review pipeline:
 | `deferred` | Valid but deferred | `#C2E0C6` |
 | `audit-resolved` | Resolved via audit process | `#006B75` |
 | `audit-rejected` | Rejected during triage | `#D93F0B` |
+| `risk:hazard` | Flagged by risk reconnaissance | `#D876E3` |
 
 ## Bootstrap
 
@@ -18,10 +19,10 @@ Verify labels exist before starting triage or audit work:
 
 ```bash
 REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
-for label in "needs-triage:FBCA04" "ready-to-fix:0E8A16" "in-progress:1D76DB" \
-             "deferred:C2E0C6" "audit-resolved:006B75" "audit-rejected:D93F0B" \
-             "audit:EDEDED"; do
-  name="${label%%:*}" color="${label#*:}"
+for label in "needs-triage=#FBCA04" "ready-to-fix=#0E8A16" "in-progress=#1D76DB" \
+             "deferred=#C2E0C6" "audit-resolved=#006B75" "audit-rejected=#D93F0B" \
+             "audit=#EDEDED" "risk:hazard=#D876E3"; do
+  name="${label%%=*}" color="${label#*=#}"
   gh label create "$name" --repo "$REPO" --color "$color" 2>/dev/null || true
 done
 ```
