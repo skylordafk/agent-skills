@@ -1,7 +1,7 @@
 ---
 name: audit
 description: "Full-cycle GitHub issue audit — triage all open audit issues, resolve actionable ones, and produce a triage report. Combines reconnaissance, classification, resolution, and reporting. Do NOT use for reviewing existing PRs or fixing a single known issue."
-argument-hint: "[--triage-only] [--repo <owner/repo>]"
+argument-hint: "[--triage-only] [--risk-scan] [--repo <owner/repo>]"
 disable-model-invocation: true
 allowed-tools: Read, Grep, Bash, ListDirectory, Write, Edit
 ---
@@ -67,6 +67,11 @@ Assign each issue one of these dispositions:
 - Close the duplicates with a comment linking to the primary issue
 - Update the primary issue to incorporate any useful detail
 
+**HAZARD** — Not broken today, but the pattern is structurally fragile or unnecessarily constrains the project's future.
+- The risk is structural, not speculative (read `../../references/risk-potential.md`)
+- A simpler or more natural design would also be more open
+- Worth addressing proactively rather than waiting for it to bite
+
 **DEFER — Needs Discussion** — Potentially valid but requires broader conversation.
 - Fix would require changes across multiple modules or services
 - Multiple reasonable approaches exist with different tradeoffs
@@ -96,9 +101,47 @@ From ACTIONABLE issues, select a focused batch:
 - **Fewer is better.** 3-5 issues resolved thoroughly over 15 sloppily.
 - **Confidence matters.** Only select issues where you're confident the fix is correct.
 - **Group related issues.** Same file/module → single PR.
-- **Prioritize:** security > correctness > reliability > architecture > maintainability > style.
+- **Prioritize:** security > correctness > hazard > reliability > architecture > maintainability > style.
 
 If `--triage-only` was specified, stop here and output the triage report.
+
+---
+
+## Phase 1.5: Risk Reconnaissance (requires `--risk-scan`)
+
+If `--risk-scan` was specified, proactively examine the codebase areas touched by audit issues for risk patterns the sweep missed.
+
+### Scope
+
+Build a list of files and modules referenced by the audit issues you just triaged. These define your search area — do not scan the entire repo.
+
+### What to look for
+
+Read `../../references/risk-potential.md` for the full framework. In each file/module:
+
+1. **Latent defects:** shared mutable state, implicit ordering, unchecked coercions, swallowed errors, stringly-typed interfaces, silent fallbacks.
+2. **Artificial constraints:** hardcoded assumptions in core abstractions, unnecessary coupling, abstractions that lock in one approach when the domain doesn't require it.
+
+### Calibration
+
+For each finding, apply the three calibration questions from the risk-potential reference:
+- Is the risk structural or speculative?
+- Does the constraint actually constrain?
+- Is there a simpler alternative that's also more open?
+
+Only file issues for findings that pass all three checks.
+
+### Output
+
+For each valid finding, create a new GitHub issue:
+```bash
+gh issue create --repo "$REPO" \
+  --title "risk: <concise description>" \
+  --body "<description of the pattern, which file(s), why it's risky per the framework, and what a better design looks like>" \
+  --label "audit" --label "needs-triage" --label "risk:hazard"
+```
+
+If `--risk-scan` was not specified, skip this phase entirely.
 
 ---
 
@@ -145,6 +188,8 @@ Produce a triage report as a comment on the PR:
 |----------------------------------|-------|------------------------|
 | ACTIONABLE (resolved this PR)    |       |                        |
 | ACTIONABLE (not yet started)     |       |                        |
+| HAZARD (resolved this PR)        |       |                        |
+| HAZARD (not yet started)         |       |                        |
 | CONSOLIDATE (duplicates closed)  |       |                        |
 | DEFER — Needs Discussion         |       |                        |
 | DEFER — Symptom of Larger Issue  |       |                        |
