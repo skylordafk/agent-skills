@@ -31,6 +31,7 @@ Verify required labels exist. Read `../../references/label-taxonomy.md` and run 
 2. **Evaluate each issue:**
    - Is this real? (verify by reading the referenced code — don't trust the audit agent blindly)
    - Does it matter? Read `../../references/four-dimensions.md` for the framework.
+   - What's the risk trajectory? Read `../../references/risk-potential.md`. Is this a latent defect (pattern known to breed bugs) or an artificial constraint (design choice that unnecessarily narrows future options)? Either is a valid reason to promote an issue that would otherwise be rejected.
    - Is it actionable? (specific fix, completable in ~1 hour)
    - Is it a duplicate or symptom of something larger?
    - **Calibration:** assess project stage — reject theoretical risks, style nits in admin scripts, and anything requiring env compromise to exploit
@@ -39,6 +40,7 @@ Verify required labels exist. Read `../../references/label-taxonomy.md` and run 
 
    **→ `ready-to-fix`** — Real, scoped, actionable.
    Remove `needs-triage`, add `ready-to-fix`. Add acceptance criteria if missing.
+   Issues with genuine risk potential qualify even if they'd otherwise seem like style nits or over-engineering — the calibration criteria in the risk-potential framework are the gatekeeper.
 
    **→ `deferred`** — Valid but not now.
    Remove `needs-triage`, add `deferred`. Comment with reason and unblock criteria.
@@ -50,6 +52,7 @@ Verify required labels exist. Read `../../references/label-taxonomy.md` and run 
    - CRITICAL + `fix` → `ready-to-fix`
    - HIGH + `fix` → `ready-to-fix`
    - Exact title match with closed issue → close as duplicate
+   - `risk:hazard` label → always manual review (never auto-triaged)
 
 5. **Output summary** with disposition counts and pattern notes.
 
