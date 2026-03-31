@@ -1,6 +1,6 @@
 # Installing GitHub-Ops Skills
 
-This guide explains how to add the github-ops skills to any project directory. It includes a prompt you can paste directly into your coding agent (Claude Code or Codex) to have it install the skills automatically.
+This guide explains how to add the github-ops skills to any project directory. It includes a prompt you can paste directly into your coding agent (Claude Code, Codex, or Gemini CLI) to have it install the skills automatically.
 
 ## What You Get
 
@@ -22,11 +22,11 @@ Plus six shared reference documents that the skills depend on (label taxonomy, s
 
 ## Agent-Executable Prompt
 
-Copy the prompt below and paste it into your coding agent. It works in Claude Code, Codex, or any agent with shell access. The agent will clone the skill repository, copy the files into place, and clean up.
+Copy the prompt below and paste it into your coding agent. It works in Claude Code, Codex, Gemini CLI, or any agent with shell access. The agent will clone the skill repository, copy the files into place, and clean up.
 
 ---
 
-### Prompt: Install for both agents (Claude Code + Codex)
+### Prompt: Install for all agents (Claude Code + Codex + Gemini CLI)
 
 ````
 Install the github-ops AI agent skills into this project from https://github.com/skylordafk/agent-skills.git
@@ -42,7 +42,7 @@ Follow these steps exactly:
 
 2. Create the required directories:
    ```
-   mkdir -p .claude/skills .claude/references .agents/skills .agents/references
+   mkdir -p .claude/skills .claude/references .agents/skills .agents/references .gemini/skills .gemini/references
    ```
 
 3. Copy Claude Code skills (each is a directory containing SKILL.md):
@@ -61,21 +61,31 @@ Follow these steps exactly:
    cp -r /tmp/agent-skills-install/github-ops/codex/review-pr .agents/skills/review-pr
    ```
 
-5. Copy shared references to BOTH agent directories (skills reference these via relative paths):
+5. Copy Gemini CLI skills (each is a directory containing SKILL.md):
+   ```
+   cp -r /tmp/agent-skills-install/github-ops/gemini/audit .gemini/skills/audit
+   cp -r /tmp/agent-skills-install/github-ops/gemini/triage .gemini/skills/triage
+   cp -r /tmp/agent-skills-install/github-ops/gemini/fix-issues .gemini/skills/fix-issues
+   cp -r /tmp/agent-skills-install/github-ops/gemini/review-pr .gemini/skills/review-pr
+   ```
+
+6. Copy shared references to ALL agent directories (skills reference these via relative paths):
    ```
    cp /tmp/agent-skills-install/github-ops/references/*.md .claude/references/
    cp /tmp/agent-skills-install/github-ops/references/*.md .agents/references/
+   cp /tmp/agent-skills-install/github-ops/references/*.md .gemini/references/
    ```
 
-6. Clean up:
+7. Clean up:
    ```
    rm -rf /tmp/agent-skills-install
    ```
 
-7. Verify the installation by listing the installed files:
+8. Verify the installation by listing the installed files:
    ```
    echo "=== Claude Code ===" && ls -R .claude/skills/ .claude/references/
    echo "=== Codex ===" && ls -R .agents/skills/ .agents/references/
+   echo "=== Gemini CLI ===" && ls -R .gemini/skills/ .gemini/references/
    ```
 
 The final directory structure should look like:
@@ -109,6 +119,20 @@ The final directory structure should look like:
 │   └── review-pr/
 │       ├── SKILL.md
 │       └── agents/openai.yaml
+└── references/
+    ├── commit-and-pr-format.md
+    ├── four-dimensions.md
+    ├── label-taxonomy.md
+    ├── operating-principles.md
+    ├── risk-potential.md
+    └── severity-definitions.md
+
+.gemini/
+├── skills/
+│   ├── audit/SKILL.md
+│   ├── triage/SKILL.md
+│   ├── fix-issues/SKILL.md
+│   └── review-pr/SKILL.md
 └── references/
     ├── commit-and-pr-format.md
     ├── four-dimensions.md
@@ -169,6 +193,30 @@ Verify with: `ls -R .agents/skills/ .agents/references/`
 Do not modify the skill files.
 ````
 
+---
+
+### Prompt: Install for Gemini CLI only
+
+````
+Install the github-ops AI agent skills for Gemini CLI into this project from https://github.com/skylordafk/agent-skills.git
+
+Run these commands:
+```
+git clone --depth 1 https://github.com/skylordafk/agent-skills.git /tmp/agent-skills-install
+mkdir -p .gemini/skills .gemini/references
+cp -r /tmp/agent-skills-install/github-ops/gemini/audit .gemini/skills/audit
+cp -r /tmp/agent-skills-install/github-ops/gemini/triage .gemini/skills/triage
+cp -r /tmp/agent-skills-install/github-ops/gemini/fix-issues .gemini/skills/fix-issues
+cp -r /tmp/agent-skills-install/github-ops/gemini/review-pr .gemini/skills/review-pr
+cp /tmp/agent-skills-install/github-ops/references/*.md .gemini/references/
+rm -rf /tmp/agent-skills-install
+```
+
+Verify with: `ls -R .gemini/skills/ .gemini/references/`
+
+Do not modify the skill files.
+````
+
 ## Manual Installation
 
 If you prefer to install manually without an agent:
@@ -200,7 +248,7 @@ This is why references must be at `.claude/references/` (or `.agents/references/
 
 ## Updating Skills
 
-### Prompt: Check for updates and upgrade (Claude Code + Codex)
+### Prompt: Check for updates and upgrade (all agents)
 
 Paste this into your coding agent to see what's changed and apply updates:
 
@@ -218,26 +266,30 @@ Follow these steps exactly:
    ```
    echo "=== Checking for changes ==="
    for dir in audit triage fix-issues review-pr; do
-     if [ -f ".claude/skills/$dir/SKILL.md" ]; then
-       if ! diff -q ".claude/skills/$dir/SKILL.md" "/tmp/agent-skills-update/github-ops/claude/$dir/SKILL.md" > /dev/null 2>&1; then
-         echo "CHANGED: $dir skill"
-         diff --unified=3 ".claude/skills/$dir/SKILL.md" "/tmp/agent-skills-update/github-ops/claude/$dir/SKILL.md" | head -40
-         echo "..."
+     for agent_dir in ".claude/skills:github-ops/claude" ".agents/skills:github-ops/codex" ".gemini/skills:github-ops/gemini"; do
+       local_dir="${agent_dir%%:*}"
+       source_dir="${agent_dir##*:}"
+       if [ -f "$local_dir/$dir/SKILL.md" ]; then
+         if ! diff -q "$local_dir/$dir/SKILL.md" "/tmp/agent-skills-update/$source_dir/$dir/SKILL.md" > /dev/null 2>&1; then
+           echo "CHANGED: $local_dir/$dir"
+           diff --unified=3 "$local_dir/$dir/SKILL.md" "/tmp/agent-skills-update/$source_dir/$dir/SKILL.md" | head -40
+           echo "..."
+         fi
        fi
-     else
-       echo "NEW: $dir skill (not currently installed)"
-     fi
+     done
    done
    echo "=== Checking references ==="
    for ref in /tmp/agent-skills-update/github-ops/references/*.md; do
      name=$(basename "$ref")
-     if [ -f ".claude/references/$name" ]; then
-       if ! diff -q ".claude/references/$name" "$ref" > /dev/null 2>&1; then
-         echo "CHANGED: $name"
+     for ref_dir in .claude/references .agents/references .gemini/references; do
+       if [ -f "$ref_dir/$name" ]; then
+         if ! diff -q "$ref_dir/$name" "$ref" > /dev/null 2>&1; then
+           echo "CHANGED: $ref_dir/$name"
+         fi
+       else
+         echo "NEW: $ref_dir/$name (not currently installed)"
        fi
-     else
-       echo "NEW: $name (not currently installed)"
-     fi
+     done
    done
    ```
 
@@ -256,6 +308,12 @@ Follow these steps exactly:
    cp -r /tmp/agent-skills-update/github-ops/codex/fix-issues .agents/skills/fix-issues
    cp -r /tmp/agent-skills-update/github-ops/codex/review-pr .agents/skills/review-pr
    cp /tmp/agent-skills-update/github-ops/references/*.md .agents/references/
+
+   cp -r /tmp/agent-skills-update/github-ops/gemini/audit .gemini/skills/audit
+   cp -r /tmp/agent-skills-update/github-ops/gemini/triage .gemini/skills/triage
+   cp -r /tmp/agent-skills-update/github-ops/gemini/fix-issues .gemini/skills/fix-issues
+   cp -r /tmp/agent-skills-update/github-ops/gemini/review-pr .gemini/skills/review-pr
+   cp /tmp/agent-skills-update/github-ops/references/*.md .gemini/references/
    ```
 
 5. Clean up:
@@ -267,6 +325,7 @@ Follow these steps exactly:
    ```
    echo "=== Claude Code ===" && ls -R .claude/skills/ .claude/references/
    echo "=== Codex ===" && ls -R .agents/skills/ .agents/references/
+   echo "=== Gemini CLI ===" && ls -R .gemini/skills/ .gemini/references/
    ```
 
 Do not modify the skill files after copying.
@@ -279,6 +338,7 @@ If you prefer to update without the prompt:
 ```bash
 rm -rf .claude/skills/{audit,triage,fix-issues,review-pr} .claude/references/
 rm -rf .agents/skills/{audit,triage,fix-issues,review-pr} .agents/references/
+rm -rf .gemini/skills/{audit,triage,fix-issues,review-pr} .gemini/references/
 # Then re-run the installation prompt
 ```
 
@@ -295,5 +355,10 @@ Once installed, invoke skills by name in your agent:
 **Codex:**
 - Skills appear in the Codex skill picker
 - Invoke by name when relevant to your task
+
+**Gemini CLI:**
+- Skills are activated automatically when Gemini identifies a matching task
+- You can also ask Gemini directly: "use the audit skill" or "triage the open issues"
+- Use `/skills list` to see installed skills
 
 All skills auto-detect the current repository via `gh repo view`. No per-project configuration is needed beyond the file installation.

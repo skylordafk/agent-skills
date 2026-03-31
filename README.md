@@ -1,6 +1,6 @@
 # agent-skills
 
-Reusable AI agent skill files for Claude Code and Codex (OpenAI). Designed to be cloned once per machine and symlinked into individual project repositories.
+Reusable AI agent skill files for Claude Code, Codex (OpenAI), and Gemini CLI. Designed to be installed into individual project repositories.
 
 ## Structure
 
@@ -8,10 +8,12 @@ Reusable AI agent skill files for Claude Code and Codex (OpenAI). Designed to be
 <category>/
 ├── claude/          # Claude Code skills (.claude/skills/ format)
 │   └── <skill>/SKILL.md
-└── codex/           # Codex skills (.agents/skills/ format)
-    └── <skill>/
-        ├── SKILL.md
-        └── agents/openai.yaml
+├── codex/           # Codex skills (.agents/skills/ format)
+│   └── <skill>/
+│       ├── SKILL.md
+│       └── agents/openai.yaml
+└── gemini/          # Gemini CLI skills (.gemini/skills/ format)
+    └── <skill>/SKILL.md
 ```
 
 ## Categories
@@ -33,7 +35,7 @@ See the **[Installation Guide](docs/installation.md)** for full instructions, in
 
 **Quick start — paste this into your agent:**
 
-> Install the github-ops AI agent skills into this project from https://github.com/skylordafk/agent-skills.git — clone it to /tmp, copy Claude Code skills to .claude/skills/, Codex skills to .agents/skills/, and shared references to both .claude/references/ and .agents/references/. Then clean up the clone and verify with ls -R.
+> Install the github-ops AI agent skills into this project from https://github.com/skylordafk/agent-skills.git — clone it to /tmp, copy Claude Code skills to .claude/skills/, Codex skills to .agents/skills/, Gemini CLI skills to .gemini/skills/, and shared references to all three reference directories. Then clean up the clone and verify with ls -R.
 
 ### Repository auto-detection
 
@@ -42,15 +44,17 @@ Skills use `gh repo view --json nameWithOwner` to detect the current repository 
 ## Adding new skills
 
 1. Create a new category directory (or use an existing one)
-2. Add `claude/` and/or `codex/` subdirectories
+2. Add `claude/`, `codex/`, and/or `gemini/` subdirectories
 3. Write `SKILL.md` files following each agent's format conventions
 4. For Codex skills, include `agents/openai.yaml` with invocation policy
 
 ## Agent format differences
 
-| Feature | Claude Code | Codex |
-|---------|-------------|-------|
-| Location | `.claude/skills/<name>/SKILL.md` | `.agents/skills/<name>/SKILL.md` |
-| Frontmatter | `name`, `description`, `argument-hint`, `allowed-tools`, `disable-model-invocation` | `name`, `description` |
-| Arguments | `$ARGUMENTS` variable | Passed via invocation context |
-| Config sidecar | None | `agents/openai.yaml` |
+| Feature | Claude Code | Codex | Gemini CLI |
+|---------|-------------|-------|------------|
+| Location | `.claude/skills/<name>/SKILL.md` | `.agents/skills/<name>/SKILL.md` | `.gemini/skills/<name>/SKILL.md` |
+| Frontmatter | `name`, `description`, `argument-hint`, `allowed-tools`, `disable-model-invocation` | `name`, `description` | `name`, `description` |
+| Arguments | `$ARGUMENTS` variable | Passed via invocation context | Passed via conversation context |
+| Activation | Slash commands or model matching | Skill picker or implicit | Model-driven via `activate_skill` |
+| Config sidecar | None | `agents/openai.yaml` | None |
+| Context file | `CLAUDE.md` | `AGENTS.md` | `GEMINI.md` |
