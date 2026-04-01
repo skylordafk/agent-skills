@@ -25,7 +25,9 @@ gh pr view $ARGUMENTS --json number,title,body,author,files,commits,labels,baseR
 gh pr diff $ARGUMENTS
 ```
 
-Read the PR description, linked issues, and the full diff.
+Read the PR description, linked issues, labels, existing comments, and the full diff.
+If you are not the first reviewer, treat prior review comments as required context.
+If the same human account authors and reviews PRs, follow `../../docs/agent-identity-separation.md`.
 
 ## Step 2: Structural Check
 

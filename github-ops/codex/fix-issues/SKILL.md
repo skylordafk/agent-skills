@@ -15,6 +15,13 @@ REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 
 Use `$REPO` for all `gh` commands below.
 
+## Before You Start
+
+- Confirm the repo is on the default branch, usually `main`.
+- `git fetch --prune`.
+- Check for local dirt before assuming a clean starting point.
+- If the task depends on upstream state, refresh before editing.
+
 ## Step 1: Find Issues
 
 ```bash

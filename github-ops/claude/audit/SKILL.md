@@ -24,15 +24,12 @@ $ARGUMENTS
 
 ## Before You Start
 
-1. **Verify labels exist.** Read `../../references/label-taxonomy.md` and run the bootstrap script to create any missing labels.
-
-2. **Pull the latest code.** Before reading any issues or writing any code:
-   ```bash
-   git checkout main && git pull origin main
-   ```
-   Many audit issues may already be fixed. Do not work against stale code.
-
-3. **Understand the stack:** Read project docs (CLAUDE.md, README, etc.) to understand the tech stack, deployment targets, and conventions.
+- Confirm the repo is on the default branch (usually `main`).
+- `git fetch --prune`.
+- Check for local dirt before assuming a clean starting point.
+- If the work depends on upstream state, refresh before editing.
+- **Verify labels exist.** Read `../../references/label-taxonomy.md` and run the bootstrap script to create any missing labels.
+- **Understand the stack:** Read project docs (CLAUDE.md, README, etc.) to understand the tech stack, deployment targets, and conventions.
 
 ---
 

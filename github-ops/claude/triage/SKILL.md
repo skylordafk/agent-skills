@@ -26,7 +26,11 @@ $ARGUMENTS
 
 ## Before You Start
 
-Verify required labels exist. Read `../../references/label-taxonomy.md` and run the bootstrap script to create any missing labels.
+- Confirm the repo is on the default branch (usually `main`).
+- `git fetch --prune`.
+- Check for local dirt before assuming a clean starting point.
+- If the work depends on upstream state, refresh before editing.
+- Verify required labels exist. Read `../../references/label-taxonomy.md` and run the bootstrap script to create any missing labels.
 
 ## Step 1: Fetch Issues
 
