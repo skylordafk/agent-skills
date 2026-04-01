@@ -15,10 +15,12 @@ Resolves #<issue-number>
 ```
 
 Rules:
+
 - One logical change per commit
 - Always reference the issue number
 - Never use generic messages ("fix issues", "cleanup")
 - Include `Resolves #N` to trigger GitHub's auto-close
+- No Emojis
 
 ## PR Template
 
