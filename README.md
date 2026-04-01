@@ -35,7 +35,7 @@ See the **[Installation Guide](docs/installation.md)** for full instructions, in
 
 **Quick start — paste this into your agent:**
 
-> Install the github-ops AI agent skills into this project from https://github.com/skylordafk/agent-skills.git — clone it to /tmp, copy Claude Code skills to .claude/skills/, Codex skills to .agents/skills/, Gemini CLI skills to .gemini/skills/, and shared references to all three reference directories. Then clean up the clone and verify with ls -R.
+> Install the github-ops AI agent skills into this project from https://github.com/skylordafk/agent-skills.git — clone it to /tmp, copy Claude Code skills to .claude/skills/, Codex skills to .agents/skills/, Gemini CLI skills to .gemini/skills/, and shared references to all three reference directories. Then add .claude/ and .agents/ to .geminiignore to silence warnings. Finally clean up the clone and verify with ls -R.
 
 ### Repository auto-detection
 

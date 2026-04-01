@@ -1,6 +1,8 @@
 ---
 name: fix-issues
 description: "Resolve triaged GitHub audit issues tagged ready-to-fix. Implements fixes, creates atomic commits, and submits a PR following project standards. Do NOT use for triaging, auditing, or reviewing PRs."
+argument-hint: "[issue-numbers or focus area]"
+disable-model-invocation: true
 ---
 
 # Fix Issues — Audit Issue Resolution
@@ -14,6 +16,8 @@ REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 ```
 
 Use `$REPO` for all `gh` commands below.
+
+$ARGUMENTS
 
 ## Step 1: Find Issues
 
