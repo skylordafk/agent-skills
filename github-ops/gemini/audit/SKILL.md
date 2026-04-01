@@ -1,6 +1,8 @@
 ---
 name: audit
 description: "Full-cycle GitHub issue audit — triage all open audit issues, resolve actionable ones, and produce a triage report. Combines reconnaissance, classification, resolution, and reporting. Do NOT use for reviewing existing PRs or fixing a single known issue."
+argument-hint: "[--triage-only] [--risk-scan] [--repo <owner/repo>]"
+disable-model-invocation: true
 ---
 
 # Audit — Full-Cycle Issue Triage & Resolution
@@ -16,6 +18,8 @@ REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 ```
 
 Use `$REPO` for all `gh` commands below. If `--repo` is specified in arguments, use that instead.
+
+$ARGUMENTS
 
 ## Before You Start
 

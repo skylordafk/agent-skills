@@ -314,6 +314,8 @@ Follow these steps exactly:
    cp -r /tmp/agent-skills-update/github-ops/gemini/fix-issues .gemini/skills/fix-issues
    cp -r /tmp/agent-skills-update/github-ops/gemini/review-pr .gemini/skills/review-pr
    cp /tmp/agent-skills-update/github-ops/references/*.md .gemini/references/
+   echo ".claude/" >> .geminiignore
+   echo ".agents/" >> .geminiignore
    ```
 
 5. Clean up:
@@ -326,6 +328,7 @@ Follow these steps exactly:
    echo "=== Claude Code ===" && ls -R .claude/skills/ .claude/references/
    echo "=== Codex ===" && ls -R .agents/skills/ .agents/references/
    echo "=== Gemini CLI ===" && ls -R .gemini/skills/ .gemini/references/
+   echo "=== .geminiignore ===" && cat .geminiignore
    ```
 
 Do not modify the skill files after copying.

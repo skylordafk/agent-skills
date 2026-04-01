@@ -1,6 +1,8 @@
 ---
 name: triage
 description: "Classify GitHub issues tagged needs-triage into ready-to-fix, deferred, or rejected. Quality gate between audit sweep and fix pipeline. Do NOT use for fixing code, reviewing PRs, or creating new issues."
+argument-hint: "[--auto-only] [--repo <owner/repo>]"
+disable-model-invocation: true
 ---
 
 # Issue Triage — Classification & Routing
@@ -18,6 +20,8 @@ REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 ```
 
 If the project spans multiple repos (e.g., a website + API), identify them from the project structure and triage both unless `--repo` narrows the scope.
+
+$ARGUMENTS
 
 ## Before You Start
 
